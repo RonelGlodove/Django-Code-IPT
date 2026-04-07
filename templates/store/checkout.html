@@ -12,6 +12,16 @@
             <p class="card-text">
                 <strong>Total Paid:</strong> ${{ total }}
             </p>
+            {% if order %}
+            <div class="text-start mt-3">
+                <strong>Items Ordered:</strong>
+                <ul class="mt-2 mb-0 ps-3">
+                    {% for item in order.items.all %}
+                    <li>{{ item.product_name }} - ${{ item.product_price }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
             <p class="text-muted">You will receive an email confirmation shortly.</p>
         </div>
     </div>

@@ -1,0 +1,78 @@
+{% extends 'store/base.html' %}
+
+{% block c %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-edit"></i> Edit Profile</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ user_form.email.id_for_label }}">Email</label>
+                                {{ user_form.email }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.phone.id_for_label }}">Number</label>
+                                {{ form.phone }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.profile_picture.id_for_label }}">Profile Picture</label>
+                                {{ form.profile_picture }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.place.id_for_label }}">Place</label>
+                                {{ form.place }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="{{ form.age.id_for_label }}">Age</label>
+                                {{ form.age }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="{{ form.birthday.id_for_label }}">Birthday</label>
+                                {{ form.birthday }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="{{ form.address.id_for_label }}">Address</label>
+                                {{ form.address }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="{{ form.city.id_for_label }}">City</label>
+                                {{ form.city }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="{{ form.postal_code.id_for_label }}">Postal Code</label>
+                                {{ form.postal_code }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="{{ form.country.id_for_label }}">Country</label>
+                                {{ form.country }}
+                            </div>
+                        </div>
+
+                        {% if form.errors or user_form.errors %}
+                        <div class="alert alert-danger mt-4 mb-0">
+                            Please correct the highlighted fields and try again.
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'profile' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

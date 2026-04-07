@@ -151,6 +151,9 @@
                             <span class="navbar-text me-2">Hello, {{ user.username }}!</span>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user-circle"></i> Profile</a>
+                        </li>
+                        <li class="nav-item">
                             <form method="post" action="{% url 'logout' %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-link text-white p-0" style="text-decoration: none;">Logout</button>
@@ -193,6 +196,7 @@
                         <li><a href="{% url 'about' %}" class="text-white">About Us</a></li>
                         <li><a href="{% url 'feedback' %}" class="text-white">Feedback</a></li>
                         {% if user.is_authenticated %}
+                        <li><a href="{% url 'profile' %}" class="text-white">My Profile</a></li>
                         <li><form method="post" action="{% url 'logout' %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-link text-white p-0" style="text-decoration: none;">Logout</button>
@@ -202,8 +206,8 @@
                 </div>
                 <div class="col-md-4">
                     <h5>Contact</h5>
-                    <p>Email: info@skechersstore.com</p>
-                    <p>Phone: (123) 456-7890</p>
+                    <p>Email: Yukiborres9@gmail.com</p>
+                    <p>Phone: 09054948467</p>
                 </div>
             </div>
             <hr>

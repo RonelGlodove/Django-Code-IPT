@@ -130,6 +130,9 @@
                         <a class="nav-link" href="{% url 'home' %}">Home</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'products' %}">Products</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'about' %}">About Us</a>
                     </li>
                     <li class="nav-item">
@@ -193,6 +196,7 @@
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
                         <li><a href="{% url 'home' %}" class="text-white">Home</a></li>
+                        <li><a href="{% url 'products' %}" class="text-white">Products</a></li>
                         <li><a href="{% url 'about' %}" class="text-white">About Us</a></li>
                         <li><a href="{% url 'feedback' %}" class="text-white">Feedback</a></li>
                         {% if user.is_authenticated %}

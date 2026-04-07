@@ -73,6 +73,13 @@ def home(r):
     if q: p=p.filter(name__icontains=q)
     return render(r,'store/home.html',{'p':p})
 
+def products(r):
+    q = r.GET.get('q')
+    p = Product.objects.all()
+    if q:
+        p = p.filter(name__icontains=q)
+    return render(r, 'store/products.html', {'p': p})
+
 @login_required
 def add_cart(r,id):
     Cart.objects.create(user=r.user,product_id=id)

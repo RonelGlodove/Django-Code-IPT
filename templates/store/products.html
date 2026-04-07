@@ -43,7 +43,12 @@
     <div class="row mb-4 align-items-center">
         <div class="col-md-8">
             <h2 class="h1 mb-2">Our Products</h2>
-            <p class="lead mb-0">Choose from the latest picks in the Skechers lineup.</p>
+            {% if q %}
+                <p class="lead mb-2">Search results for "<strong>{{ q }}</strong>"</p>
+                <a href="{% url 'products' %}" class="btn btn-outline-secondary btn-sm">Clear Search</a>
+            {% else %}
+                <p class="lead mb-0">Choose from the latest picks in the Skechers lineup.</p>
+            {% endif %}
         </div>
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
             <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">{{ p|length }} item{{ p|length|pluralize }}</span>

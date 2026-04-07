@@ -147,7 +147,7 @@
                         </li>
                     {% endif %}
                 </ul>
-                <form class="d-flex me-3" method="get" action="{% url 'home' %}">
+                <form class="d-flex me-3" method="get" action="{% url 'products' %}">
                     <input class="form-control me-2" type="search" name="q" placeholder="Search products..." value="{{ request.GET.q }}" aria-label="Search">
                     <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
                 </form>

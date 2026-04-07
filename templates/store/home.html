@@ -110,7 +110,12 @@
         <div class="row mb-4">
             <div class="col-12 text-center">
                 <h2 class="h1">Our Products</h2>
-                <p class="lead">Find your perfect pair from our curated selection.</p>
+                {% if q %}
+                    <p class="lead mb-2">Showing results for "<strong>{{ q }}</strong>"</p>
+                    <a href="{% url 'products' %}" class="btn btn-outline-secondary btn-sm">Clear Search</a>
+                {% else %}
+                    <p class="lead">Find your perfect pair from our curated selection.</p>
+                {% endif %}
             </div>
         </div>
 

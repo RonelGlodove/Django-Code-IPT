@@ -1,10 +1,29 @@
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import FeedbackForm, SignUpForm, UserAccountForm, UserProfileForm
 from .models import Cart, Order, OrderItem, Product, Wishlist
+
+
+def get_product_results(query):
+    products = Product.objects.all()
+    cleaned_query = (query or '').strip()
+
+    if not cleaned_query:
+        return products, ''
+
+    for term in cleaned_query.split():
+        term_filter = Q(name__icontains=term)
+        try:
+            term_filter |= Q(price=float(term))
+        except ValueError:
+            pass
+        products = products.filter(term_filter)
+
+    return products, cleaned_query
 
 
 def missing_profile_fields(user):
@@ -30,17 +49,12 @@ def signup(r):
     return render(r, 'registration/signup.html', {'form': form})
 
 def home(r):
-    q=r.GET.get('q')
-    p=Product.objects.all()
-    if q: p=p.filter(name__icontains=q)
-    return render(r,'store/home.html',{'p':p})
+    p, q = get_product_results(r.GET.get('q'))
+    return render(r, 'store/home.html', {'p': p, 'q': q})
 
 def products(r):
-    q = r.GET.get('q')
-    p = Product.objects.all()
-    if q:
-        p = p.filter(name__icontains=q)
-    return render(r, 'store/products.html', {'p': p})
+    p, q = get_product_results(r.GET.get('q'))
+    return render(r, 'store/products.html', {'p': p, 'q': q})
 
 @login_required
 def add_cart(r,id):

@@ -1,48 +1,10 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import login, logout
-from .models import Product, Cart, Wishlist, Order, OrderItem, Feedback, UserProfile
-from django import forms
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
 
-
-class FeedbackForm(forms.ModelForm):
-    class Meta:
-        model = Feedback
-        fields = ['name', 'email', 'message']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-        }
-
-
-class UserProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ['phone', 'place', 'age', 'birthday', 'address', 'city', 'postal_code', 'country', 'profile_picture']
-        widgets = {
-            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Number'}),
-            'place': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Place'}),
-            'age': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Age', 'min': '0'}),
-            'birthday': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Street Address'}),
-            'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}),
-            'postal_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Postal Code'}),
-            'country': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Country'}),
-            'profile_picture': forms.FileInput(attrs={'class': 'form-control'}),
-        }
-
-
-class UserAccountForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['email']
-        widgets = {
-            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email Address'}),
-        }
+from .forms import FeedbackForm, SignUpForm, UserAccountForm, UserProfileForm
+from .models import Cart, Order, OrderItem, Product, Wishlist
 
 
 def missing_profile_fields(user):
@@ -58,13 +20,13 @@ def missing_profile_fields(user):
 
 def signup(r):
     if r.method == 'POST':
-        form = UserCreationForm(r.POST)
+        form = SignUpForm(r.POST)
         if form.is_valid():
             user = form.save()
             login(r, user)
             return redirect('home')
     else:
-        form = UserCreationForm()
+        form = SignUpForm()
     return render(r, 'registration/signup.html', {'form': form})
 
 def home(r):
@@ -119,6 +81,48 @@ def checkout(r):
     ])
     items.delete()
     return render(r,'store/checkout.html',{'total':total, 'order': order})
+
+
+@login_required
+def order_history(r):
+    orders = (
+        Order.objects.filter(user=r.user)
+        .prefetch_related('items', 'items__product')
+        .order_by('-created_at', '-id')
+    )
+    return render(r, 'store/order_history.html', {'orders': orders})
+
+
+@login_required
+def cancel_order(r, id):
+    order = get_object_or_404(Order, id=id, user=r.user)
+    if r.method != 'POST':
+        return redirect('order_history')
+
+    if order.status != Order.STATUS_WAITING:
+        messages.warning(r, 'Only waiting orders can be cancelled.')
+        return redirect('order_history')
+
+    order.status = Order.STATUS_CANCELLED
+    order.save(update_fields=['status', 'updated_at'])
+    messages.success(r, 'Your order has been cancelled.')
+    return redirect('order_history')
+
+
+@login_required
+def mark_order_received(r, id):
+    order = get_object_or_404(Order, id=id, user=r.user)
+    if r.method != 'POST':
+        return redirect('order_history')
+
+    if order.status != Order.STATUS_SUCCESSFUL:
+        messages.warning(r, 'Only successful orders can be marked as received.')
+        return redirect('order_history')
+
+    order.status = Order.STATUS_RECEIVED
+    order.save(update_fields=['status', 'updated_at'])
+    messages.success(r, 'Order marked as received.')
+    return redirect('order_history')
 
 @login_required
 def wishlist(r, id):

@@ -142,6 +142,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'cart' %}">Cart</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'order_history' %}">Orders</a>
+                        </li>
                     {% endif %}
                 </ul>
                 <form class="d-flex me-3" method="get" action="{% url 'home' %}">
@@ -201,6 +204,7 @@
                         <li><a href="{% url 'feedback' %}" class="text-white">Feedback</a></li>
                         {% if user.is_authenticated %}
                         <li><a href="{% url 'profile' %}" class="text-white">My Profile</a></li>
+                        <li><a href="{% url 'order_history' %}" class="text-white">My Orders</a></li>
                         <li><form method="post" action="{% url 'logout' %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-link text-white p-0" style="text-decoration: none;">Logout</button>

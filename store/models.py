@@ -60,11 +60,26 @@ class Wishlist(models.Model):
 
 
 class Order(models.Model):
+    STATUS_WAITING = 'waiting'
+    STATUS_CANCELLED = 'cancelled'
+    STATUS_SUCCESSFUL = 'successful'
+    STATUS_RECEIVED = 'received'
+
+    STATUS_CHOICES = [
+        (STATUS_WAITING, 'Waiting'),
+        (STATUS_CANCELLED, 'Cancelled'),
+        (STATUS_SUCCESSFUL, 'Successful'),
+        (STATUS_RECEIVED, 'Received'),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     total = models.FloatField(default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_WAITING)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def __str__(self):
-        return f"Order by {self.user.username} - Total: {self.total}"
+        return f"Order #{self.pk} by {self.user.username} - {self.get_status_display()}"
 
 
 class OrderItem(models.Model):

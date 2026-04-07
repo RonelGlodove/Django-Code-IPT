@@ -14,8 +14,18 @@
 
                         <div class="row g-3">
                             <div class="col-md-6">
+                                <label class="form-label" for="{{ user_form.username.id_for_label }}">Username</label>
+                                {{ user_form.username }}
+                                {% for error in user_form.username.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label" for="{{ user_form.email.id_for_label }}">Email</label>
                                 {{ user_form.email }}
+                                {% for error in user_form.email.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="{{ form.phone.id_for_label }}">Number</label>
@@ -62,6 +72,9 @@
                         {% endif %}
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'password_change' %}" class="btn btn-outline-warning">
+                                <i class="fas fa-key"></i> Change Password
+                            </a>
                             <a href="{% url 'profile' %}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Cancel
                             </a>

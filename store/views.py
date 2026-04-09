@@ -140,12 +140,31 @@ def mark_order_received(r, id):
 
 @login_required
 def wishlist(r, id):
-    Wishlist.objects.create(user=r.user, product_id=id)
-    return redirect('home')
+    wishlist_item, created = Wishlist.objects.get_or_create(user=r.user, product_id=id)
+    if created:
+        messages.success(r, f'"{wishlist_item.product.name}" was added to your wishlist.')
+    else:
+        messages.info(r, f'"{wishlist_item.product.name}" is already in your wishlist.')
+    return redirect('wishlist')
+
+
+@login_required
+def wishlist_page(r):
+    items = Wishlist.objects.filter(user=r.user).select_related('product')
+    return render(r, 'store/wishlist.html', {'items': items})
+
+
+@login_required
+def remove_from_wishlist(r, id):
+    Wishlist.objects.filter(id=id, user=r.user).delete()
+    messages.success(r, 'Item removed from your wishlist.')
+    return redirect('wishlist')
 
 @login_required
 def remove_from_cart(r, id):
     Cart.objects.filter(id=id, user=r.user).delete()
+    messages.success(r, 'Item removed from your cart.')
+    return redirect('cart')
 
 
 @login_required

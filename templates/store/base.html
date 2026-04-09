@@ -133,19 +133,20 @@
                         <a class="nav-link" href="{% url 'products' %}">Products</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'about' %}">About Us</a>
+                        <a class="nav-link" href="{% url 'wishlist' %}">Wishlist</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'cart' %}">Cart</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'order_history' %}">Orders</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'feedback' %}">Feedback</a>
                     </li>
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'cart' %}">Cart</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'order_history' %}">Orders</a>
-                        </li>
-                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">About Us</a>
+                    </li>
                 </ul>
                 <form class="d-flex me-3" method="get" action="{% url 'products' %}">
                     <input class="form-control me-2" type="search" name="q" placeholder="Search products..." value="{{ request.GET.q }}" aria-label="Search">
@@ -200,16 +201,18 @@
                     <ul class="list-unstyled">
                         <li><a href="{% url 'home' %}" class="text-white">Home</a></li>
                         <li><a href="{% url 'products' %}" class="text-white">Products</a></li>
-                        <li><a href="{% url 'about' %}" class="text-white">About Us</a></li>
-                        <li><a href="{% url 'feedback' %}" class="text-white">Feedback</a></li>
+                        <li><a href="{% url 'wishlist' %}" class="text-white">Wishlist</a></li>
+                        <li><a href="{% url 'cart' %}" class="text-white">Cart</a></li>
+                        <li><a href="{% url 'order_history' %}" class="text-white">Orders</a></li>
                         {% if user.is_authenticated %}
                         <li><a href="{% url 'profile' %}" class="text-white">My Profile</a></li>
-                        <li><a href="{% url 'order_history' %}" class="text-white">My Orders</a></li>
                         <li><form method="post" action="{% url 'logout' %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-link text-white p-0" style="text-decoration: none;">Logout</button>
                             </form></li>
                         {% endif %}
+                        <li><a href="{% url 'feedback' %}" class="text-white">Feedback</a></li>
+                        <li><a href="{% url 'about' %}" class="text-white">About Us</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">

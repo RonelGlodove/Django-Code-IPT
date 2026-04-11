@@ -137,17 +137,17 @@ def mark_orders_cancelled(modeladmin, request, queryset):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'status_badge', 'ordered_products', 'user_profile_preview', 'user_email', 'user_phone', 'user_place', 'user_location', 'total', 'created_at']
-    search_fields = ['user__username', 'user__email', 'user__profile__phone', 'user__profile__place', 'user__profile__city', 'user__profile__country', 'items__product_name']
+    list_display = ['invoice_number', 'user', 'status_badge', 'ordered_products', 'user_profile_preview', 'user_email', 'user_phone', 'user_place', 'user_location', 'total', 'created_at']
+    search_fields = ['user__username', 'user__email', 'user__profile__phone', 'user__profile__place', 'user__profile__city', 'user__profile__country', 'items__product_name', 'invoice_number']
     list_filter = ['status', 'user', 'user__profile__country', 'user__profile__city', 'created_at']
-    readonly_fields = ['user', 'total', 'created_at', 'updated_at', 'user_profile_preview', 'user_profile_file', 'user_email', 'user_phone', 'user_place', 'user_age', 'user_birthday', 'user_address', 'user_location']
+    readonly_fields = ['invoice_number', 'user', 'total', 'created_at', 'updated_at', 'user_profile_preview', 'user_profile_file', 'user_email', 'user_phone', 'user_place', 'user_age', 'user_birthday', 'user_address', 'user_location']
     list_select_related = ['user', 'user__profile']
     inlines = [OrderItemInline]
     actions = [mark_orders_waiting, mark_orders_successful, mark_orders_received, mark_orders_cancelled]
 
     fieldsets = (
         ('Order', {
-            'fields': ('user', 'status', 'total', 'created_at', 'updated_at'),
+            'fields': ('invoice_number', 'user', 'status', 'total', 'created_at', 'updated_at'),
         }),
         ('Customer Profile', {
             'fields': ('user_profile_preview', 'user_profile_file', 'user_email', 'user_phone', 'user_place', 'user_age', 'user_birthday', 'user_address', 'user_location'),

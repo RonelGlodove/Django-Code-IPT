@@ -15,7 +15,7 @@
                         <hr class="my-4">
                         <div class="row text-start justify-content-center">
                             <div class="col-md-6 border rounded p-3 bg-light">
-                                <p class="mb-1"><strong>Order ID:</strong> #{{ order.id }}</p>
+                                <p class="mb-1"><strong>Invoice Number:</strong> {{ order.invoice_number }}</p>
                                 <p class="mb-1"><strong>Payment Method:</strong> {{ payment_method }}</p>
                                 <p class="mb-0"><strong>Total Amount:</strong> ₱ {{ total|floatformat:2 }}</p>
                             </div>

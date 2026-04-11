@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -74,13 +75,23 @@ class Order(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     total = models.FloatField(default=0)
+    invoice_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_WAITING)
     payment_method = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def __str__(self):
-        return f"Order #{self.pk} by {self.user.username} - {self.get_status_display()}"
+        return f"Order {self.invoice_number or self.pk} by {self.user.username}"
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new and not self.invoice_number:
+            # Generate unique invoice number: INV-YYYYMMDD-0000X
+            date_str = self.created_at.strftime('%Y%m%d') if self.created_at else timezone.now().strftime('%Y%m%d')
+            self.invoice_number = f"INV-{date_str}-{self.pk:05d}"
+            Order.objects.filter(pk=self.pk).update(invoice_number=self.invoice_number)
 
 
 class OrderItem(models.Model):

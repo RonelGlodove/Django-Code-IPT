@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import FeedbackForm, SignUpForm, UserAccountForm, UserProfileForm
-from .models import Cart, Order, OrderItem, Product, Wishlist
+from .models import Cart, Order, OrderItem, Product, UserProfile, Wishlist
 
 
 def get_product_results(query):
@@ -27,13 +27,14 @@ def get_product_results(query):
 
 
 def missing_profile_fields(user):
-    profile = user.profile
+    profile, _ = UserProfile.objects.get_or_create(user=user)
     required_fields = {
         'email': user.email,
-        'phone': profile.phone,
+        'phone number': profile.phone,
+        'address': profile.address,
+        'city': profile.city,
+        'zip code': profile.postal_code,
         'place': profile.place,
-        'age': profile.age,
-        'birthday': profile.birthday,
     }
     return [label for label, value in required_fields.items() if not value]
 
@@ -68,6 +69,14 @@ def cart(r):
     return render(r,'store/cart.html',{'items':items,'total':total})
 
 @login_required
+def buy_now(r, id):
+    # Create cart item and immediately set it as the only item for checkout
+    item = Cart.objects.create(user=r.user, product_id=id)
+    r.session['checkout_item_ids'] = [str(item.id)]
+    return redirect('checkout')
+
+
+@login_required
 def checkout(r):
     missing_fields = missing_profile_fields(r.user)
     if missing_fields:
@@ -77,24 +86,53 @@ def checkout(r):
         )
         return redirect('edit_profile')
 
-    items=Cart.objects.filter(user=r.user)
+    # Handle selection from cart page (POST) or session persistence
+    if r.method == 'POST' and 'selected_items' in r.POST:
+        r.session['checkout_item_ids'] = r.POST.getlist('selected_items')
+
+    selected_ids = r.session.get('checkout_item_ids')
+    if selected_ids:
+        items = Cart.objects.filter(user=r.user, id__in=selected_ids)
+    else:
+        items = Cart.objects.filter(user=r.user)
+
     if not items.exists():
-        messages.warning(r, 'Your cart is empty.')
+        messages.warning(r, 'No items selected for checkout.')
         return redirect('cart')
 
-    total=sum(i.product.price for i in items)
-    order = Order.objects.create(user=r.user,total=total)
-    OrderItem.objects.bulk_create([
-        OrderItem(
-            order=order,
-            product=item.product,
-            product_name=item.product.name,
-            product_price=item.product.price,
-        )
-        for item in items
-    ])
-    items.delete()
-    return render(r,'store/checkout.html',{'total':total, 'order': order})
+    total = sum(i.product.price for i in items)
+
+    if r.method == 'POST':
+        payment_method = r.POST.get('payment_method')
+        if not payment_method:
+            messages.error(r, 'Please select a payment method.')
+        else:
+            # Process order after user confirms details and selects payment
+            order = Order.objects.create(user=r.user, total=total, payment_method=payment_method)
+            OrderItem.objects.bulk_create([
+                OrderItem(
+                    order=order,
+                    product=item.product,
+                    product_name=item.product.name,
+                    product_price=item.product.price,
+                )
+                for item in items
+            ])
+            items.delete()
+            if 'checkout_item_ids' in r.session:
+                del r.session['checkout_item_ids']
+            messages.success(r, f'Order placed successfully via {payment_method}!')
+            return render(r, 'store/checkout.html', {
+                'total': total,
+                'order': order,
+                'payment_method': payment_method,
+                'success': True
+            })
+
+    # GET request: Display confirmation page with profile details and payment options
+    payment_methods = ['PayMaya', 'GCash', 'Credit Card', 'Cash on Delivery']
+    profile, _ = UserProfile.objects.get_or_create(user=r.user)
+    return render(r, 'store/checkout.html', {'items': items, 'total': total, 'profile': profile, 'payment_methods': payment_methods})
 
 
 @login_required
@@ -169,11 +207,12 @@ def remove_from_cart(r, id):
 
 @login_required
 def profile(r):
-    return render(r, 'store/profile.html', {'profile': r.user.profile})
+    profile, _ = UserProfile.objects.get_or_create(user=r.user)
+    return render(r, 'store/profile.html', {'profile': profile})
 
 @login_required
 def edit_profile(r):
-    profile = r.user.profile
+    profile, _ = UserProfile.objects.get_or_create(user=r.user)
     if r.method == 'POST':
         form = UserProfileForm(r.POST, r.FILES, instance=profile)
         user_form = UserAccountForm(r.POST, instance=r.user)
@@ -210,4 +249,4 @@ def feedback(r):
 def logout_view(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
-    return redirect('home_page')
+    return redirect('home')

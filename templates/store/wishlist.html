@@ -43,7 +43,7 @@
                         </div>
                         <div class="col-md-8">
                             <h4 class="mb-2">{{ item.product.name }}</h4>
-                            <p class="text-success fw-bold fs-5 mb-3">${{ item.product.price }}</p>
+                            <p class="text-success fw-bold fs-5 mb-3">₱{{ item.product.price }}</p>
                             <div class="d-flex gap-2 flex-wrap">
                                 <a href="{% url 'add' item.product.id %}" class="btn btn-custom">
                                     <i class="fas fa-cart-plus me-1"></i> Add to Cart

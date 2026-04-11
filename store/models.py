@@ -75,6 +75,7 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     total = models.FloatField(default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_WAITING)
+    payment_method = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 

@@ -1,40 +1,113 @@
 {% extends 'store/base.html' %}
 {% block c %}
-<div class="text-center mt-5">
-    <div class="mb-4">
-        <i class="fas fa-check-circle fa-4x text-success"></i>
-    </div>
-    <h1 class="display-4 text-success mb-3">Order Placed Successfully!</h1>
-    <p class="lead">Thank you for shopping with Skechers. Your order has been confirmed.</p>
-    <div class="card mx-auto" style="max-width: 400px;">
-        <div class="card-body">
-            <h5 class="card-title">Order Details</h5>
-            <p class="card-text">
-                <strong>Total Paid:</strong> ${{ total }}
-            </p>
-            {% if order %}
-            <div class="text-start mt-3">
-                <strong>Items Ordered:</strong>
-                <ul class="mt-2 mb-0 ps-3">
-                    {% for item in order.items.all %}
-                    <li>{{ item.product_name }} - ${{ item.product_price }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            {% if success %}
+                <!-- Success Confirmation Message -->
+                <div class="card shadow-sm border-success text-center p-5">
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <span class="display-1 text-success">✓</span>
+                        </div>
+                        <h2 class="display-5 fw-bold text-success">Order Confirmed!</h2>
+                        <p class="lead text-muted">Thank you for your purchase. Your order has been placed successfully.</p>
+                        <hr class="my-4">
+                        <div class="row text-start justify-content-center">
+                            <div class="col-md-6 border rounded p-3 bg-light">
+                                <p class="mb-1"><strong>Order ID:</strong> #{{ order.id }}</p>
+                                <p class="mb-1"><strong>Payment Method:</strong> {{ payment_method }}</p>
+                                <p class="mb-0"><strong>Total Amount:</strong> ₱ {{ total|floatformat:2 }}</p>
+                            </div>
+                        </div>
+                        <a href="{% url 'home' %}" class="btn btn-primary btn-lg px-5 mt-4">Continue Shopping</a>
+                    </div>
+                </div>
+            {% else %}
+                <h2 class="mb-4 fw-bold">Review & Checkout</h2>
+                
+                <div class="row g-4">
+                    <!-- Left Column: Shipping & Payment -->
+                    <div class="col-md-7">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0">Confirm Shipping Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4 text-muted">Recipient:</div>
+                                    <div class="col-sm-8 fw-bold">{{ profile.user.get_full_name|default:profile.user.username }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4 text-muted">Contact:</div>
+                                    <div class="col-sm-8">{{ profile.phone }}</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4 text-muted">Address:</div>
+                                    <div class="col-sm-8">
+                                        {{ profile.address }}<br>
+                                        {{ profile.place }}, {{ profile.city }}<br>
+                                        {{ profile.postal_code }}, {{ profile.country }}
+                                    </div>
+                                </div>
+                                <div class="text-end border-top pt-2">
+                                    <a href="{% url 'edit_profile' %}?next={% url 'checkout' %}" class="btn btn-sm btn-outline-secondary">
+                                        Edit Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0">Select Payment Method</h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    {% for method in payment_methods %}
+                                    <div class="form-check border rounded p-3 mb-3">
+                                        <input class="form-check-input ms-0 me-3" type="radio" name="payment_method" id="method_{{ forloop.counter }}" value="{{ method }}" required>
+                                        <label class="form-check-label d-block fw-semibold" for="method_{{ forloop.counter }}">
+                                            {{ method }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                    <button type="submit" class="btn btn-success btn-lg w-100 py-3 mt-3 fw-bold">
+                                        Complete Order (₱ {{ total|floatformat:2 }})
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Summary -->
+                    <div class="col-md-5">
+                        <div class="card shadow-sm sticky-top" style="top: 20px;">
+                            <div class="card-header bg-light py-3">
+                                <h5 class="mb-0">Order Summary</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="list-group list-group-flush">
+                                    {% for item in items %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <span>{{ item.product.name }}</span>
+                                        <span class="fw-bold">₱ {{ item.product.price|floatformat:2 }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="card-footer bg-white py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h5 mb-0">Total Amount</span>
+                                    <span class="h4 mb-0 text-success fw-bold">₱ {{ total|floatformat:2 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endif %}
-            <p class="text-muted">You will receive an email confirmation shortly.</p>
         </div>
-    </div>
-    <div class="mt-4">
-        <a href="{% url 'home' %}" class="btn btn-custom me-2">
-            <i class="fas fa-home"></i> Continue Shopping
-        </a>
-        <a href="{% url 'order_history' %}" class="btn btn-outline-primary me-2">
-            <i class="fas fa-receipt"></i> View Orders
-        </a>
-        <a href="{% url 'cart' %}" class="btn btn-outline-secondary">
-            <i class="fas fa-shopping-cart"></i> View Cart
-        </a>
     </div>
 </div>
 {% endblock %}
